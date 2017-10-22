@@ -20,8 +20,8 @@ func main() {
 	msg_count := 0
 	conv_count := len(convs)
 	for _, conv := range convs {
-		// Get all unread messages from a conversation
-		msgs, err := chat.GetMessages(conv)
+		// Get all unread messages from a conversation (peeking)
+		msgs, err := chat.GetMessages(conv, true)
 		if err != nil {
 			log.Fatal(err)
 		}

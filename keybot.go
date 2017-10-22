@@ -83,7 +83,7 @@ func (api *ChatApi) Listen() <-chan Message {
 				continue
 			}
 			for _, conv := range conversations {
-				messages, err := api.GetMessages(conv)
+				messages, err := api.GetMessages(conv, false)
 				if err != nil {
 					continue
 				}
@@ -128,8 +128,9 @@ func parseConversations(bytes []byte) ([]string, error) {
 }
 
 // Return array of unread messages in conversation
-func (api *ChatApi) GetMessages(conv string) ([]Message, error) {
-	request, err := createReadRequest(conv)
+// If peek is true then this won't flag the messages as being read
+func (api *ChatApi) GetMessages(conv string, peek bool) ([]Message, error) {
+	request, err := createReadRequest(conv, peek)
 	if err != nil {
 		return nil, err
 	}
@@ -141,10 +142,11 @@ func (api *ChatApi) GetMessages(conv string) ([]Message, error) {
 }
 
 // Create a marshalled JSON request for unread messages for conversation
-func createReadRequest(conv string) ([]byte, error) {
+func createReadRequest(conv string, peek bool) ([]byte, error) {
 	type options struct {
 		Conversation string `json:"conversation_id"`
 		UnreadOnly   bool   `json:"unread_only"`
+		Peek         bool   `json:"peek"`
 	}
 	type params struct {
 		Options options `json:"options"`
@@ -159,6 +161,7 @@ func createReadRequest(conv string) ([]byte, error) {
 			Options: options{
 				Conversation: conv,
 				UnreadOnly:   true,
+				Peek:         peek,
 			},
 		},
 	})
